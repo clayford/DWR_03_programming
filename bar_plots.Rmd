@@ -1,0 +1,43 @@
+---
+title: "VYS bar plots"
+author: "Clay Ford"
+date: "July 19, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Bar plots
+
+```{r echo=FALSE, message=FALSE}
+library(haven)
+library(ggplot2)
+library(dplyr)
+library(purrr)
+vys <- read_sav("yrbs2013.sav")
+vys <- vys %>% mutate_if(is.labelled, as_factor)
+
+get_label <- function(x){
+  attr(x, which = "label")
+}
+
+plot_titles <- vys %>%
+  select_if(is.factor) %>%
+  map_chr(get_label)
+
+Qs <- names(plot_titles)
+
+vys_bar_plot <- function(var){
+  ggplot(vys, aes_string(x = var)) + 
+    geom_bar() + 
+    coord_flip() + 
+    ggtitle(plot_titles[var]) +
+    xlab("")
+}
+
+map(Qs, vys_bar_plot)
+```
+
+
